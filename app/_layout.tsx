@@ -1,24 +1,34 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { useEffect } from 'react';
+import { SettingsProvider } from '../contexts/SettingsContext';
+import { loadSounds, unloadSounds } from '../utils/audio';
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    // Preload sounds on app start
+    loadSounds();
+    return () => {
+      unloadSounds();
+    };
+  }, []);
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+    <SettingsProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: '#0F172A' },
+          animation: 'fade', // smooth transitions
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="game" />
+        <Stack.Screen name="settings" options={{ presentation: 'modal' }} />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+      <StatusBar style="light" />
+    </SettingsProvider>
   );
 }
